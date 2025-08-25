@@ -27,6 +27,8 @@ consistent across different systems.
 The workflow has two entry points, one to build the container image, the second
 to execute the actual pipeline.
 
+### Local execution
+
 To build the container, you need to have Apptainer installed. Then, run the
 following command in the directory containing the `conda.recipe` file:
 
@@ -38,6 +40,26 @@ To execute the workflow, you can use the following command:
 
 ```bash
 $ nextflow run  .  -entry pipeline
+```
+
+Note that the data you want to process should be in a directory call `data`, or
+specified as a command line argument `--data <absolute-path>`.
+
+
+### Remote execution
+
+Using the `slurm` profile allows you to run the workflow on an HPC cluster.
+
+To build the container, you can use the following command:
+
+```bash
+$ nextflow run  gjbex/Aggregate-nextflow  -entry build -profile slurm
+```
+
+To execute the workflow, you can use the following command:
+
+```bash
+$ nextflow run  gjbex/Aggregate-nextflow  -entry pipeline -profile slurm
 ```
 
 Note that the data you want to process should be in a directory call `data`, or
