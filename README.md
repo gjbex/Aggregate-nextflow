@@ -1,18 +1,29 @@
-# Containers
+# Aggregate nextflow
 
-Nextflow workflows can use containers to run tasks in isolated environments.
-This is particularly useful for ensuring that the software dependencies are
-consistent across different systems.
+Example of a workflow that has two entry points:
+* `build`: builds an Apptainer container image with the necessary dependencies
+  for the workflow.
+* `pipeline`: executes the actual data processing workflow.
+
+The `pipeline` entry point consists of
+* three grouping steps that can be done in parallel,
+* an aggregation step that combines the data computed by the previous step.
+
+It is only intended to be used in a demo to illustrate how to execute a
+nextflow workflow directly from a GitHub repository.  It is intended to be used
+in the ["Workflows for HPC
+training](https://gjbex.github.io/Workflows-for-HPC/).
 
 
 ## What is it?
 
 1. `main.nf`: nextflow workflow definition file.
 1. `nextflow.config`: nextflow configuration file.
-1. `workflow-scripts/`: directory containing the Python scripts used
-   in the workflow.
+1. `workflow-scripts/`: directory containing the Python scripts used in the
+   workflow.
     1. `sum_group.py`: Python script that sums the values in a group.
-    1. `mean_group.py`: Python script that calculates the mean of values in a group.
+    1. `mean_group.py`: Python script that calculates the mean of values in a
+       group.
     1. `join_data.py`: Python script that joins the datasets.
 1. `example_data`: directory containing the input data files.
 1. `environment.yml`: Conda environment definition file that specifies the
