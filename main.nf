@@ -1,50 +1,71 @@
+params.data = "${launchDir}/data/"
+
+process BuildImage {
+    publishDir "${launchDir}/images", mode: 'copy'
+
+    output:
+    path "data_processing.sif"
+
+    script:
+    """
+    apptainer build \
+        --fakeroot \
+        --build-arg environment="${projectDir}/conda_environment.yml" \
+        data_processing.sif "${projectDir}/conda.recipe"
+    """
+}
+
 process Summarize_A {
-    publishDir "${projectDir}/results", mode: 'copy'
+    label 'data_processing_container'
+    publishDir "${launchDir}/results", mode: 'copy'
 
     output:
     path "summary_A.csv"
 
     script:
     """
-    python ${projectDir}/sum_group.py \
-        --input_file ${projectDir}/data/data_A.csv \
+    python "${projectDir}/workflow-scripts/sum_group.py" \
+        --input_file "${params.data}/data_A.csv" \
         --column_name A \
         --output_file summary_A.csv
     """
 }
 
 process Summarize_B {
-    publishDir "${projectDir}/results", mode: 'copy'
+    label 'data_processing_container'
+    publishDir "${launchDir}/results", mode: 'copy'
 
     output:
     path "summary_B.csv"
 
     script:
     """
-    python ${projectDir}/mean_group.py \
-        --input_file ${projectDir}/data/data_B.csv \
+    python "${projectDir}/workflow-scripts/mean_group.py" \
+        --input_file "${params.data}/data_B.csv" \
         --column_name B \
         --output_file summary_B.csv
     """
 }
 
 process Summarize_C {
-    publishDir "${projectDir}/results", mode: 'copy'
+    label 'data_processing_container'
+    publishDir "${launchDir}/results", mode: 'copy'
 
     output:
     path "summary_C.csv"
 
     script:
     """
-    python ${projectDir}/sum_group.py \
-        --input_file ${projectDir}/data/data_C.csv \
+    python ${projectDir}/workflow-scripts/sum_group.py \
+        --input_file ${params.data}/data_C.csv \
         --column_name C \
         --output_file summary_C.csv
     """
 }
 
 process JoinData {
-    publishDir "${projectDir}/results", mode: 'copy'
+    label 'data_processing_container'
+    publishDir "${launchDir}/results", mode: 'copy'
 
     input:
     path summary_A
@@ -56,15 +77,23 @@ process JoinData {
 
     script:
     """
-    python ${projectDir}/join_data.py \
+    python ${projectDir}/workflow-scripts/join_data.py \
         --input_files $summary_A $summary_B $summary_C \
         --output_file summary.csv
     """
 }
 
-workflow {
+workflow pipeline {
     summaryA_channel = Summarize_A()
     summaryB_channel = Summarize_B()
     summaryC_channel = Summarize_C()
     JoinData(summaryA_channel, summaryB_channel, summaryC_channel).view()
+}
+
+workflow build {
+    BuildImage().view()
+}
+
+workflow {
+    pipeline()
 }
