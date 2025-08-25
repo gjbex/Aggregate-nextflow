@@ -1,3 +1,11 @@
+# nextflow artifacts
+.nextflow.log*
+.nextflow/
+data/
+images/
+results/
+work/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
